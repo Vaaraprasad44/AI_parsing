@@ -41,22 +41,13 @@ async def parse_personal_info(request: PersonalInfoRequest):
     """
     try:
         parser = get_parser()
-        parsed_result = await parser.parse_personal_info(request.input_text)
+        personal_info = await parser.parse_personal_info(request.input_text)
         
-        # Extract confidence from parsed result
-        confidence = parsed_result.pop("confidence", 0.8)
-        
-        # Create PersonalInfo object
-        personal_info = PersonalInfo(
-            name=parsed_result.get("name"),
-            street=parsed_result.get("street"),
-            city=parsed_result.get("city"),
-            state=parsed_result.get("state"),
-            country=parsed_result.get("country"),
-            zip_code=parsed_result.get("zip_code"),
-            phone_number=parsed_result.get("phone_number"),
-            email=parsed_result.get("email")
-        )
+        # Calculate confidence based on how many fields were populated
+        filled_fields = sum(1 for field_name, field_value in personal_info.model_dump().items() 
+                           if field_value is not None and field_value != "")
+        total_fields = len(personal_info.model_fields)
+        confidence = min(0.95, max(0.1, filled_fields / total_fields))  # Scale between 0.1 and 0.95
         
         return PersonalInfoResponse(
             input_text=request.input_text,
