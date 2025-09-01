@@ -1,19 +1,23 @@
 from pydantic import BaseModel
-from typing import Optional, Literal
-from enum import Enum
+from typing import Optional, Literal, Dict, Any
 
 
-class TodoCategory(str, Enum):
-    WORK = "Work"
-    HOME = "Home"
-    OTHER = "Other"
+class PersonalInfoRequest(BaseModel):
+    input_text: str
 
 
-class TodoClassificationRequest(BaseModel):
-    description: str
+class PersonalInfo(BaseModel):
+    name: Optional[str] = None
+    street: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    country: Optional[str] = None
+    zip_code: Optional[str] = None
+    phone_number: Optional[str] = None
+    email: Optional[str] = None
 
 
-class TodoClassificationResponse(BaseModel):
-    description: str
-    category: TodoCategory
+class PersonalInfoResponse(BaseModel):
+    input_text: str
+    personal_info: PersonalInfo
     confidence: float

@@ -1,19 +1,28 @@
-# Todo API - Python FastAPI Implementation
+# Personal Information Parser API - Python FastAPI Implementation
 
-A FastAPI implementation of the Todo API matching the OpenAPI specification from the ASP.NET Core project.
+A FastAPI implementation for parsing personal information from text using AI-powered extraction.
 
 ## Features
 
-- RESTful API for Todo CRUD operations
-- In-memory database with thread-safe operations  
+- AI-powered personal information extraction from natural language text
+- Groq API integration for fast inference
 - CORS enabled for cross-origin requests
-- Comprehensive test coverage (91%)
 - Auto-generated API documentation at `/swagger`
+- Structured response format for parsed personal data
 
 ## Installation
 
 ```bash
 pip install -r requirements.txt
+```
+
+## Configuration
+
+Create a `.env` file with your Groq API key:
+
+```bash
+GROQ_API_KEY=your_groq_api_key_here
+GROQ_MODEL=llama-3.1-8b-instant
 ```
 
 ## Running the Application
@@ -34,58 +43,55 @@ The API will be available at `http://localhost:8000`
 
 ## API Endpoints
 
-- `GET /api/Todos` - Get all todos
-- `POST /api/Todos` - Create a new todo
-- `PUT /api/Todos/{id}` - Update an existing todo
-- `DELETE /api/Todos/{id}` - Delete a todo
+- `POST /api/personal-info/parse` - Extract personal information from text
 
-## Testing
+### Example Request
 
-The project includes comprehensive unit and integration tests.
-
-### Run all tests
-```bash
-pytest
+```json
+{
+  "input_text": "My name is Sergio Ramos, I live in 2874 crest dr, Detroit, Michigan, USA, 48823. My phone number is 603-327-4883."
+}
 ```
 
-### Run tests quietly (less verbose)
-```bash
-pytest -q
-```
+### Example Response
 
-### Run specific test file
-```bash
-pytest tests/test_database.py  # Unit tests for database
-pytest tests/test_api.py       # Integration tests for API
+```json
+{
+  "input_text": "My name is Sergio Ramos...",
+  "personal_info": {
+    "name": "Sergio Ramos",
+    "street": "2874 crest dr",
+    "city": "Detroit",
+    "state": "Michigan",
+    "country": "USA",
+    "zip_code": "48823",
+    "phone_number": "603-327-4883",
+    "email": null
+  },
+  "confidence": 0.95
+}
 ```
-
-### Run specific test
-```bash
-pytest tests/test_api.py::TestTodoAPI::test_create_todo
-```
-
-The tests include:
-- **Unit tests** (`test_database.py`): Test the in-memory database operations
-- **Integration tests** (`test_api.py`): Test the complete API endpoints
-- **Edge cases**: Empty titles, special characters, concurrent operations
-- **Bug regression tests**: Specific test for the delete-then-update scenario
 
 ## Project Structure
 
 ```
 PythonApi/
-├── main.py                 # FastAPI application and endpoints
-├── models.py              # Pydantic models for request/response
-├── database.py            # In-memory database implementation
-├── requirements.txt      # Python dependencies
-├── pytest.ini            # Pytest configuration
-├── README.md            # This file
-└── tests/               # Test directory
-    ├── __init__.py      # Tests package marker
-    ├── test_database.py # Unit tests for database
-    └── test_api.py      # Integration tests for API
+├── main.py              # FastAPI application and endpoints
+├── models.py            # Pydantic models for request/response
+├── openai_service.py    # AI service for personal info parsing
+├── requirements.txt     # Python dependencies
+├── .env                 # Environment variables (not in git)
+├── .env.example         # Example environment file
+└── README.md           # This file
 ```
 
-## Integration with Aspire
+## Supported Personal Information Fields
 
-This project is designed to be orchestrated by .NET Aspire. Container orchestration is handled at the Aspire level, not within this Python project.
+- **name**: Full name of the person
+- **street**: Street address (number and street name)
+- **city**: City name
+- **state**: State or province
+- **country**: Country name
+- **zip_code**: Postal/ZIP code
+- **phone_number**: Phone number
+- **email**: Email address (if present)
