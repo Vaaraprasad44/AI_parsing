@@ -8,12 +8,17 @@ export const enhancedPersonalInfoApi = personalInfoApi.enhanceEndpoints({
         parsePersonalInfoApiPersonalInfoParsePost: {
             invalidatesTags: ['PERSONAL_INFO'],
         },
+        parsePersonalInfoFromImageApiPersonalInfoParseImagePost: {
+            invalidatesTags: ['PERSONAL_INFO'],
+        },
     }
 });
 
 export const {
   useParsePersonalInfoApiPersonalInfoParsePostMutation,
+  useParsePersonalInfoFromImageApiPersonalInfoParseImagePostMutation,
 } = enhancedPersonalInfoApi;
 
-// Create a more user-friendly hook name
+// Create more user-friendly hook names
 export const useParsePersonalInfoMutation = useParsePersonalInfoApiPersonalInfoParsePostMutation;
+export const useParsePersonalInfoFromImageMutation = useParsePersonalInfoFromImageApiPersonalInfoParseImagePostMutation;
