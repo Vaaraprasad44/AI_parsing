@@ -6,12 +6,13 @@ import { useParsePersonalInfoMutation, useParsePersonalInfoFromImageMutation } f
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PersonalInfoResponse } from "@/store/api/generated/personal-info";
-import { Upload, FileText, Image } from "lucide-react";
+import { Upload, FileText, Image, Loader2 } from "lucide-react";
 
 export default function PersonalInfoPage() {
     const [inputText, setInputText] = useState("");
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [activeTab, setActiveTab] = useState<'text' | 'image'>('text');
+    const [imageUploading, setImageUploading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     
     const [parsePersonalInfo, { isLoading: textLoading, error: textError }] = useParsePersonalInfoMutation();
@@ -19,7 +20,7 @@ export default function PersonalInfoPage() {
     const [result, setResult] = useState<PersonalInfoResponse | null>(null);
     const router = useRouter();
     
-    const isLoading = textLoading || imageLoading;
+    const isLoading = textLoading || imageLoading || imageUploading;
     const error = textError || imageError;
 
     const handleParseInfo = async () => {
@@ -36,6 +37,7 @@ export default function PersonalInfoPage() {
                 console.error('Failed to parse personal info:', err);
             }
         } else if (activeTab === 'image' && selectedFile) {
+            setImageUploading(true);
             try {
                 console.log('Sending file:', selectedFile);
                 console.log('File details:', {
@@ -71,6 +73,8 @@ export default function PersonalInfoPage() {
                 if (err && typeof err === 'object' && 'status' in err) {
                     console.error('HTTP status:', err.status);
                 }
+            } finally {
+                setImageUploading(false);
             }
         }
     };
@@ -202,9 +206,21 @@ export default function PersonalInfoPage() {
                     <Button 
                         onClick={handleParseInfo} 
                         disabled={isLoading || !canParse}
-                        className="flex-1"
+                        className={`flex-1 ${activeTab === 'image' && imageUploading ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
                     >
-                        {isLoading ? "Parsing..." : `Parse ${activeTab === 'text' ? 'Text' : 'ID Card'}`}
+                        {activeTab === 'image' && imageUploading ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Analyzing ID Card...
+                            </>
+                        ) : textLoading ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Parsing Text...
+                            </>
+                        ) : (
+                            `Parse ${activeTab === 'text' ? 'Text' : 'ID Card'}`
+                        )}
                     </Button>
                     <Button 
                         variant="outline" 
